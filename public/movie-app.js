@@ -27,7 +27,9 @@ $(document).ready(function() {
       template: _.template($('#movieTemplate').html()),
 
       render: function() {
-        this.$el.html(this.template(this.model.toJSON()));
+        var model = this.model.toJSON();
+        this.$el.html(this.template(model));
+        this.$el.attr('id', model.pk);
         return this;
       }
     });
@@ -36,7 +38,8 @@ $(document).ready(function() {
         el: $('#movies'),
 
         events: {
-            'click #submit-movie': 'createMovie'
+            'click #submit-movie': 'createMovie',
+            'click .delete': 'deleteMovie'
         },
 
         initialize: function() {
@@ -96,6 +99,25 @@ $(document).ready(function() {
             } else {
                 alert("Please enter movie name");
             }
+        },
+
+        deleteMovie: function(e) {
+            e.preventDefault();
+
+            var self = this;
+            var $elem = $(e.target).parents("article");
+            var id = $elem.attr("id");
+
+            var movie = this.collection.get(id);
+            $elem.remove();
+
+            movie.destroy({'success': function() {
+                alert("movie deleted!");
+            }, 'error': function() {
+                alert("movie not found");
+            }});
+
+
         },
 
         populateGenreSelector: function() {
