@@ -10,6 +10,23 @@
 <body>
   <div class="content-wrapper">
     <div id="movies">
+      <div>
+        <form id="movie-form">
+          <h3>Add movie</h3>
+          <div class="form-item">
+            <label for="movie-name">Name</label>
+            <input type="text" id="movie-name">
+          </div>
+          <div class="form-item">
+            <label for="movie-genre">Genre</label>
+            <select id="movie-genre" multiple>
+            </select>
+          </div>
+          <div class="form-item">
+            <button id="submit-movie">Submit</button>
+          </div>
+        </form>
+      </div>
       <script id="movieTemplate" type="text/template">
         <div class="name"><%= name %></div>
         <div class="genre"><% name %></div>
