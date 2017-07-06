@@ -44,17 +44,17 @@ $(document).ready(function() {
 
         initialize: function() {
           var self = this;
-          this.collection = new Movies([]);
-          this.collection.fetch({
-              success: function(collection,response,options) {
-                  self.render();
-              }
-          });
 
           this.genres = new Genres();
           this.genres.fetch({
             success: function(collection,response,options) {
                   self.populateGenreSelector();
+                  self.collection = new Movies([]);
+                  self.collection.fetch({
+                    success: function(collection,response,options) {
+                        self.render();
+                    }
+                  });
             }
           });
         },
@@ -67,6 +67,14 @@ $(document).ready(function() {
         },
 
         renderMovie: function(item) {
+          var genres = [];
+          var self = this;
+
+          _.each(item.attributes.genre_fks, function(item, index, list) {
+              var genre = self.genres.get(item);
+              genres[item] = genre.attributes.name;
+          });
+          item.attributes.genres = genres;
           var movieView = new MovieView({
               model: item
           });
@@ -104,7 +112,6 @@ $(document).ready(function() {
         deleteMovie: function(e) {
             e.preventDefault();
 
-            var self = this;
             var $elem = $(e.target).parents("article");
             var id = $elem.attr("id");
 

@@ -28,8 +28,12 @@
         </form>
       </div>
       <script id="movieTemplate" type="text/template">
-        <div class="name"><%= name %></div>
-        <div class="genre"><% name %></div>
+        <h2 class="name"><%= name %></h2>
+        <ul class="genre">
+          <% for(var genre in genres) { %>
+          <li><%= genres[genre] %></li>
+          <% } %>
+        </ul>
         <button class="edit">Edit</button>
         <button class="delete">Delete</button>
       </script>
