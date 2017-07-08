@@ -112,16 +112,21 @@ $(document).ready(function() {
 
         editMovie: function(e) {
             e.preventDefault();
+            this.initialize();
 
             var $elem = $(e.target).parents("article");
             var id = $elem.attr("id");
-
             var movie = this.collection.get(id);
+            var self = this;
 
-            this.$el.find('#movie-form #movie-name').val(movie.attributes.name);
-            this.$el.find('#movie-form #movie-genre').val(movie.attributes.genre_fks);
-            this.$el.find('#movie-form #movie-id').val(id);
-            this.setFormMode('edit');
+            movie.fetch({
+                success: function(collection,response,options) {
+                    self.$el.find('#movie-form #movie-name').val(movie.attributes.name);
+                    self.$el.find('#movie-form #movie-genre').val(movie.attributes.genre_fks);
+                    self.$el.find('#movie-form #movie-id').val(id);
+                    self.setFormMode('edit');
+                }
+            });
         },
 
         deleteMovie: function(e) {
