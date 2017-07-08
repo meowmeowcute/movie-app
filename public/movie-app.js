@@ -38,8 +38,11 @@ $(document).ready(function() {
         el: $('#movies'),
 
         events: {
-            'click #submit-movie': 'createMovie',
-            'click .delete': 'deleteMovie'
+            'click form #submit-movie.add': 'createMovie',
+            'click form #submit-movie:not(.add)': 'saveMovie',
+            'click .delete': 'deleteMovie',
+            'click .edit': 'editMovie',
+            'click #cancel': 'resetForm'
         },
 
         initialize: function() {
@@ -103,10 +106,22 @@ $(document).ready(function() {
                 movie.save(null, {'success': function() {
                     self.initialize();
                 }});
-                $('#movie-form')[0].reset();
-            } else {
-                alert("Please enter movie name");
+                this.resetForm();
             }
+        },
+
+        editMovie: function(e) {
+            e.preventDefault();
+
+            var $elem = $(e.target).parents("article");
+            var id = $elem.attr("id");
+
+            var movie = this.collection.get(id);
+
+            this.$el.find('#movie-form #movie-name').val(movie.attributes.name);
+            this.$el.find('#movie-form #movie-genre').val(movie.attributes.genre_fks);
+            this.$el.find('#movie-form #movie-id').val(id);
+            this.setFormMode('edit');
         },
 
         deleteMovie: function(e) {
@@ -123,12 +138,37 @@ $(document).ready(function() {
             }, 'error': function() {
                 alert("movie not found");
             }});
+        },
 
+        saveMovie: function(e) {
+            e.preventDefault();
+            var id = $("#movie-id").val();
 
+            var formData = {};
+            formData.name = this.$el.find('#movie-form #movie-name').val();
+            formData.genre_fks = [];
+
+            var genres = this.$el.find('#movie-form #movie-genre').val();
+            _.each(genres, function(item, index, list) {
+                formData.genre_fks.push(item);
+            });
+
+            if (this.validateMovie(formData)) {
+                var self = this;
+                var movie = this.collection.get(id);
+                movie.set({'name': formData.name});
+                movie.set({'genre_fks': formData.genre_fks});
+                movie.save(null, {'success': function() {
+                    self.initialize();
+                }});
+            }
+
+            this.resetForm();
         },
 
         populateGenreSelector: function() {
             var genreSelector = this.$el.find('#movie-genre');
+            $(genreSelector).html("");
             _.each(this.genres.models, function(item, index, list) {
                 var option = $('<option/>', {
                     value: item.attributes.pk,
@@ -139,9 +179,29 @@ $(document).ready(function() {
 
         validateMovie: function(formData) {
             if (formData.name === "") {
+                alert("Please enter movie name");
                 return false;
             }
             return true;
+        },
+
+        setFormMode: function(mode) {
+            var form = $('#movie-form');
+
+            $(form).find("#form-mode").val(mode);
+            if (mode === 'add') {
+                $('button#submit-movie').text('Submit').addClass('add');
+                $(form).find("h3").text('Add movie');
+            }
+            if (mode === 'edit') {
+                $('button#submit-movie').text('Save').removeClass('add');
+                $(form).find("h3").text('Edit movie');
+            }
+        },
+
+        resetForm: function() {
+            this.setFormMode('add');
+            $('#movie-form')[0].reset();
         }
     });
 
